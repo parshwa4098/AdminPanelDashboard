@@ -7,10 +7,13 @@ import { TbBrandGoogleAnalytics, TbSettings } from "react-icons/tb";
 import { FaUsers } from "react-icons/fa6";
 import { AiOutlineLogout } from "react-icons/ai";
 import SidebarItem from "../components/SidebarItem";
+import { GiHamburgerMenu } from "react-icons/gi";
+
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState(null);
+  const [isOpen,setIsOpen]=useState(false)
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -22,6 +25,9 @@ export default function DashboardLayout({ children }) {
     localStorage.removeItem("user");
     router.push("/login"); //logout functionality
   };
+  const sidebar=()=>[
+    setIsOpen(!isOpen)
+  ]
 
   if (!user) return null;
 
@@ -50,13 +56,15 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-black text-white">
       <aside className="w-64 bg-black p-6 border-r border-gray-700">
-        <h2 className="text-3xl font-bold text-purple-500 mb-8">Dashboard</h2>
+        <h2 className="text-3xl font-bold text-purple-500 mb-8"><GiHamburgerMenu className="cursor-pointer text-[23px]"/> Dashboard</h2>
         <nav className="space-y-3">
           {menuItems.map((item, index) => {
             if (item.adminOnly && user.role !== "admin") return null;
             const isActive = pathname === item.path;
             return (
-              <SidebarItem
+              <SidebarItem 
+              isOpen={isOpen}
+              toggleSideBar={sidebar}
                 key={index}
                 text={item.text}
                 icon={item.icon}

@@ -30,50 +30,73 @@ export default function SettingsPage() {
     const updatedUsers = [...allUsers];
     updatedUsers[index].role = newRole;
     setAllUsers(updatedUsers);
+
     localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-     toast.success("User Role Changed!", {
-        className: "bg-green-500 text-white font-semibold rounded-lg",
-        position: "top-center",
-      });
+    const loggedUser = JSON.parse(localStorage.getItem("user"));
+    if (loggedUser?.email === updatedUsers[index].email) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...loggedUser, role: newRole })
+      );
+    }
+
+    toast.success("User role changed!", {
+      position: "top-center",
+    });
   };
 
   if (!user) return null;
 
   return (
-    <div className="p-8 min-h-screen bg-black text-white">
-      <h1 className="text-3xl font-bold mb-6 text-purple-500">Settings - Assign Roles</h1>
+    <div className="min-h-screen bg-black text-white px-4 py-6 sm:px-8">
+    
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-purple-500">
+        Settings - Assign Roles
+      </h1>
 
-      <table className="w-full text-left border border-gray-700 rounded-xl">
-        <thead>
-          <tr className="border-b border-gray-600">
-            <th className="py-3 px-2">Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allUsers.map((u, index) => (
-            <tr key={index} className="border-b border-gray-700">
-              <td className="py-3 px-2">{u.name}</td>
-              <td>{u.email}</td>
-              <td>
-                <select
-                  value={u.role}
-                  onChange={(e) => handleRoleChange(index, e.target.value)}
-                  className="bg-black text-white border border-gray-600 rounded-lg px-2 py-1"
-                >
-                  <option value="staff">Staff</option>
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </td>
-              <td>Active</td>
+      
+      <div className="overflow-x-auto border border-gray-700 rounded-xl">
+        <table className="w-full min-w-[700px] text-left">
+          <thead>
+            <tr className="border-b border-gray-700 bg-gray-900">
+              <th className="py-3 px-3">Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {allUsers.map((u, index) => (
+              <tr key={index} className="border-b border-gray-700">
+                <td className="py-3 px-3">{u.name}</td>
+                <td className="py-3 px-3">{u.email}</td>
+
+                <td className="py-3 px-3">
+                  <select
+                    value={u.role}
+                    onChange={(e) =>
+                      handleRoleChange(index, e.target.value)
+                    }
+                    className="w-full sm:w-auto bg-gray-900 text-white border border-gray-600 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </td>
+
+                <td className="py-3 px-3">
+                  <span className="px-3 py-1 rounded-full text-sm font-semibold bg-green-600/20 text-green-500">
+                    Active
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

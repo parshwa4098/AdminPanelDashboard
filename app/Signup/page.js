@@ -8,7 +8,7 @@ export default function Page() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("staff");
+  const [role, setRole] = useState("employee");
   const [error, setError] = useState("");
 
   const validateEmail = (email) => {
@@ -96,7 +96,7 @@ export default function Page() {
           className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
           onChange={(e) => setRole(e.target.value)}
         >
-          <option value="staff">Staff</option>
+          <option value="Employee">Employee</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
         </select>
