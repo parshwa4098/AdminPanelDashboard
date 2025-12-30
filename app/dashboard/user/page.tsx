@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LiaUserEditSolid } from "react-icons/lia";
 import { toast } from "react-toastify";
+import { FaUserCircle } from "react-icons/fa";
+import { IoIosPersonAdd } from "react-icons/io";
+import { LiaUserEditSolid } from "react-icons/lia";
 import { LuSave } from "react-icons/lu";
 import { TbEyeCancel } from "react-icons/tb";
-import { IoIosPersonAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
-import { FaUserCircle } from "react-icons/fa";
-import { useState } from "react";
 import Modal from "../../_components/Modal";
+import useAdminProtection from "@/app/_utils/useAdminProtection";
 
-type UserRole = 'admin' | 'manager' | 'employee';
+type UserRole = "admin" | "manager" | "employee";
 
 interface User {
   name: string;
@@ -23,71 +23,48 @@ interface User {
 
 interface NewUser {
   name: string;
-
   email: string;
   role: UserRole;
 }
 
 export default function UsersPage() {
+  useAdminProtection(); 
+
   const router = useRouter();
-  
-  
+
   const [user] = useState<User | null>(() => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  
   const [allUsers, setAllUsers] = useState<User[]>(() => {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === "undefined") return [];
     const usersData = localStorage.getItem("users");
     const parsed = usersData ? JSON.parse(usersData) : [];
     return Array.isArray(parsed) ? parsed : [];
   });
 
-  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
   const [newUser, setNewUser] = useState<NewUser>({
     name: "",
     email: "",
     role: "employee",
   });
 
-  useEffect(() => {
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (user.role !== "admin") {
-      alert("Access denied: Admins only");
-      router.push("/dashboard");
-      return;
-    }
-  }, [user, router]);
-
   if (!user) return null;
 
   const handleAddUser = (): void => {
     if (!newUser.name || !newUser.email) {
-      toast.error("All fields are required!", {
-        position: "top-center",
-      });
+      toast.error("All fields are required!", { position: "top-center" });
       return;
     }
 
-    const userToAdd: User = {
-      ...newUser,
-      password: "", 
-    };
-
+    const userToAdd: User = { ...newUser, password: "" };
     const updated = [...allUsers, userToAdd];
     setAllUsers(updated);
     localStorage.setItem("users", JSON.stringify(updated));
-
     toast.success("User added!", { position: "top-center" });
     setShowAddModal(false);
     setNewUser({ name: "", email: "", role: "employee" });
@@ -95,7 +72,7 @@ export default function UsersPage() {
 
   const handleDelete = (index: number): void => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-    
+
     const updated = [...allUsers];
     updated.splice(index, 1);
     setAllUsers(updated);
@@ -121,7 +98,7 @@ export default function UsersPage() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto">
-      <div className="flex flex-row justify-between items-center gap-4 mb-6 sm:mb-8">
+      <div className="flex justify-between items-center mb-6 sm:mb-8">
         <div className="flex items-center gap-3">
           <FaUserCircle className="text-3xl sm:text-5xl text-gray-400" />
           <h1 className="text-lg sm:text-3xl font-semibold text-white">
@@ -137,47 +114,45 @@ export default function UsersPage() {
           <span className="font-medium text-sm sm:text-base hidden sm:inline">
             Add New
           </span>
-          <span className="font-medium text-sm sm:hidden">Add</span>
         </button>
       </div>
 
       <div className="w-full overflow-x-auto border border-gray-700 rounded-xl bg-gray-900/20 pb-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  {allUsers.map((u, index) => (
-    <div
-      key={index}
-      className="bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col gap-3 hover:bg-gray-800 transition"
-    >
-      
-      <div className="flex justify-between items-start">
-        <div>
-          {editingIndex === index ? (
-            <input
-              value={u.name}
-              onChange={(e) =>
-                handleFieldChange(index, "name", e.target.value)
-              }
-              className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
-            />
-          ) : (
-            <h3 className="text-lg font-semibold">{u.name}</h3>
-          )}
+          {allUsers.map((u, index) => (
+            <div
+              key={index}
+              className="bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col gap-3 hover:bg-gray-800 transition"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  {editingIndex === index ? (
+                    <input
+                      value={u.name}
+                      onChange={(e) =>
+                        handleFieldChange(index, "name", e.target.value)
+                      }
+                      className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <h3 className="text-lg font-semibold">{u.name}</h3>
+                  )}
 
-          {editingIndex === index ? (
-            <input
-              value={u.email}
-              onChange={(e) =>
-                handleFieldChange(index, "email", e.target.value)
-              }
-              className="mt-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm w-full"
-            />
-          ) : (
-            <p className="text-sm text-gray-400">{u.email}</p>
-          )}
-        </div>
+                  {editingIndex === index ? (
+                    <input
+                      value={u.email}
+                      onChange={(e) =>
+                        handleFieldChange(index, "email", e.target.value)
+                      }
+                      className="mt-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm w-full"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-400">{u.email}</p>
+                  )}
+                </div>
 
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-medium capitalize
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize
             ${
               u.role === "admin"
                 ? "bg-red-500/20 text-red-400"
@@ -185,71 +160,67 @@ export default function UsersPage() {
                 ? "bg-blue-500/20 text-blue-400"
                 : "bg-purple-500/20 text-purple-400"
             }`}
-        >
-          {u.role}
-        </span>
-      </div>
+                >
+                  {u.role}
+                </span>
+              </div>
 
-    
-      {editingIndex === index && (
-        <select
-          value={u.role}
-          onChange={(e) =>
-            handleFieldChange(index, "role", e.target.value)
-          }
-          className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
-        >
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
-        </select>
-      )}
+              {editingIndex === index && (
+                <select
+                  value={u.role}
+                  onChange={(e) =>
+                    handleFieldChange(index, "role", e.target.value)
+                  }
+                  className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="employee">Employee</option>
+                </select>
+              )}
 
-      
-      <div className="text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded w-fit">
-        Active
-      </div>
+              <div className="text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded w-fit">
+                Active
+              </div>
 
-      
-      {user.role === "admin" && (
-        <div className="flex justify-end gap-3 mt-2">
-          {editingIndex === index ? (
-            <>
-              <button
-                onClick={handleSaveEdit}
-                className="text-green-500 hover:text-green-400"
-              >
-                <LuSave size={20} />
-              </button>
-              <button
-                onClick={() => setEditingIndex(null)}
-                className="text-red-500 hover:text-red-400"
-              >
-                <TbEyeCancel size={20} />
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setEditingIndex(index)}
-                className="text-yellow-500 hover:text-yellow-400"
-              >
-                <LiaUserEditSolid size={22} />
-              </button>
-              <button
-                onClick={() => handleDelete(index)}
-                className="text-red-500 hover:text-red-400"
-              >
-                <MdDelete size={22} />
-              </button>
-            </>
-          )}
+              {user.role === "admin" && (
+                <div className="flex justify-end gap-3 mt-2">
+                  {editingIndex === index ? (
+                    <>
+                      <button
+                        onClick={handleSaveEdit}
+                        className="text-green-500 hover:text-green-400"
+                      >
+                        <LuSave size={20} />
+                      </button>
+                      <button
+                        onClick={() => setEditingIndex(null)}
+                        className="text-red-500 hover:text-red-400"
+                      >
+                        <TbEyeCancel size={20} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setEditingIndex(index)}
+                        className="text-yellow-500 hover:text-yellow-400"
+                      >
+                        <LiaUserEditSolid size={22} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(index)}
+                        className="text-red-500 hover:text-red-400"
+                      >
+                        <MdDelete size={22} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-      )}
-    </div>
-  ))}
-</div>
-
       </div>
 
       <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)}>
