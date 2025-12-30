@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface User {
+  
+  email: string;
+  password: string;
+  
+}
+
 export default function Page() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -12,20 +19,21 @@ export default function Page() {
   const handleLogin = () => {
     setError("");
 
-    let users = JSON.parse(localStorage.getItem("users"));
+    if (!email || !password) {
+      setError("Please enter email and password");
+      return;
+    }
 
-    
-    if (!users) {
+    const storedUsers = localStorage.getItem("users");
+    if (!storedUsers) {
       setError("No users found, please sign up first.");
       return;
     }
 
-  
-    if (!Array.isArray(users)) {
-      users = [users];
-    }
+    let users: User[] = [];
+    const parsedUsers = JSON.parse(storedUsers);
+    users = Array.isArray(parsedUsers) ? parsedUsers : [parsedUsers];
 
-  
     const user = users.find(
       (u) => u.email === email && u.password === password
     );
@@ -35,7 +43,6 @@ export default function Page() {
       return;
     }
 
-    
     localStorage.setItem("user", JSON.stringify(user));
     router.push("/dashboard");
   };
@@ -52,15 +59,17 @@ export default function Page() {
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
         />
 
         <button
@@ -71,7 +80,7 @@ export default function Page() {
         </button>
 
         <p className="mt-4 text-center text-white">
-          Don't have an account?
+          Dont have an account?
           <span
             className="text-pink-600 cursor-pointer"
             onClick={() => router.push("/Signup")}

@@ -3,29 +3,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+type UserRole = "admin" | "manager" | "employee";
+
+interface User {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
 export default function Page() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("employee");
+  const [role, setRole] = useState<UserRole>("employee");
   const [error, setError] = useState("");
 
-  const validateEmail = (email) => {
-  
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-  };
+  const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
-  const validatePassword = (password) => {
-    
-    const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-    return re.test(password);
-  };
+  const validatePassword = (password: string) =>
+    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
 
   const handleSignup = () => {
     setError("");
-
+    
     if (!name || !email || !password) {
       setError("All fields are required");
       return;
@@ -43,22 +45,20 @@ export default function Page() {
       return;
     }
 
-    let existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+    const stored = localStorage.getItem("users");
+    let existingUsers: User[] = stored ? JSON.parse(stored) : [];
 
     if (!Array.isArray(existingUsers)) existingUsers = [existingUsers];
 
-    
-    const emailExists = existingUsers.some((user) => user.email === email);
-    if (emailExists) {
+    if (existingUsers.some((user) => user.email === email)) {
       setError("Email is already registered");
       return;
     }
 
-    const newUser = { name, email, password, role };
+    const newUser: User = { name, email, password, role };
     existingUsers.push(newUser);
 
     localStorage.setItem("users", JSON.stringify(existingUsers));
-
     router.push("/login");
   };
 
@@ -74,29 +74,33 @@ export default function Page() {
         <input
           type="text"
           placeholder="Full Name"
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
+          value={name}
           onChange={(e) => setName(e.target.value)}
+          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
         />
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
         />
 
         <select
+          value={role}
+          onChange={(e) => setRole(e.target.value as UserRole)}
           className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
-          onChange={(e) => setRole(e.target.value)}
         >
-          <option value="Employee">Employee</option>
+          <option value="employee">Employee</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
         </select>
@@ -109,7 +113,7 @@ export default function Page() {
         </button>
 
         <p className="mt-4 text-center text-white">
-          Already have an account?
+          Already have an account?{" "}
           <span
             className="text-purple-600 cursor-pointer"
             onClick={() => router.push("/login")}
