@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaUser, FaEnvelope, FaLock, FaUserTag, FaCheckCircle } from "react-icons/fa";
 
 type UserRole = "admin" | "manager" | "employee";
 
@@ -27,7 +28,7 @@ export default function Page() {
 
   const handleSignup = () => {
     setError("");
-    
+
     if (!name || !email || !password) {
       setError("All fields are required");
       return;
@@ -62,65 +63,172 @@ export default function Page() {
     router.push("/login");
   };
 
+  const getRoleDescription = (role: UserRole) => {
+    switch (role) {
+      case "admin":
+        return "Full access to manage users, view analytics, and control all features";
+      case "manager":
+        return "Can view analytics and manage team members";
+      case "employee":
+        return "Basic access to view dashboard and personal information";
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center h-screen bg-black">
-      <div className="bg-black p-8 rounded-2xl shadow-xl w-96">
-        <h1 className="text-2xl font-semibold mb-4 text-center text-white">
-          Create an Account
-        </h1>
+    <div className="flex justify-center items-center min-h-screen bg-black p-4">
+      <div className="flex flex-col lg:flex-row gap-8 max-w-6xl w-full">
+        
+        <div className="flex-1 text-white space-y-6">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4 ">
+              Join Our Platform
+            </h1>
+            <p className=" text-lg">
+              Create your account and start managing your team today
+            </p>
+          </div>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          <div className="space-y-4">
+            <div className="flex items-start gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+              <div className="bg-green-500/20 p-3 rounded-lg">
+                <FaCheckCircle className="text-2xl text-green-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Quick Setup</h3>
+                <p className=" text-sm">
+                  Get started in minutes with our simple registration process
+                </p>
+              </div>
+            </div>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
-        />
+            <div className="flex items-start gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <FaUserTag className="text-2xl text-purple-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Choose Your Role</h3>
+                <p className=" text-sm">
+                  Select the role that best fits your responsibilities
+                </p>
+              </div>
+            </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
-        />
+            <div className="flex items-start gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+              <div className="bg-blue-500/20 p-3 rounded-lg">
+                <FaLock className="text-2xl text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Secure & Safe</h3>
+                <p className=" text-sm">
+                  Your data is protected with industry-standard security
+                </p>
+              </div>
+            </div>
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
-        />
+          {/* <div className=" border border-purple-500/30 rounded-xl p-4">
+            <p className="text-sm ">
+               <span className="font-semibold">Pro Tip:</span> Choose "Admin" role for full access to all features
+            </p>
+          </div> */}
+        </div>
 
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value as UserRole)}
-          className="w-full p-3 mb-4 border rounded-lg bg-white text-black"
-        >
-          <option value="employee">Employee</option>
-          <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
-        </select>
+        
+        <div className="lg:w-96 w-full">
+          <div className="bg-black border border-gray-800 p-8 rounded-2xl shadow-2xl">
+            <h2 className="text-2xl font-semibold mb-6 text-center text-white">
+              Create an Account
+            </h2>
 
-        <button
-          onClick={handleSignup}
-          className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-pink-700"
-        >
-          Sign Up
-        </button>
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-4 text-center text-sm">
+                {error}
+              </div>
+            )}
 
-        <p className="mt-4 text-center text-white">
-          Already have an account?{" "}
-          <span
-            className="text-purple-600 cursor-pointer"
-            onClick={() => router.push("/login")}
-          >
-            Login
-          </span>
-        </p>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm  mb-1 block">Full Name</label>
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 " />
+                  <input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full p-3 pl-10 border border-gray-700 rounded-lg bg-black text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm mb-1 block">Email</label>
+                <div className="relative">
+                  <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 pl-10 border border-gray-700 rounded-lg bg-black text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm  mb-1 block">Password</label>
+                <div className="relative">
+                  <FaLock className="absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-3 pl-10 border border-gray-700 rounded-lg bg-black text-white "
+                  />
+                </div>
+                <p className="text-xs text-white mt-1">
+                  Min 6 characters with letters and numbers
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm  mb-1 block">Select Role</label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as UserRole)}
+                  className="w-full p-3 border border-gray-700 rounded-lg bg-black text-white  cursor-pointer"
+                >
+                  <option value="employee">Employee</option>
+                  <option value="manager">Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <p className="text-xs mt-1">
+                  {getRoleDescription(role)}
+                </p>
+              </div>
+
+              <button
+                onClick={handleSignup}
+                className="w-full bg-purple-600 text-white p-3 rounded-lg cursor-pointer font-medium "
+              >
+                Create Account
+              </button>
+            </div>
+
+            <div className="mt-6 text-center">
+              <p className=" text-sm">
+                Already have an account?
+                <span
+                  className="text-purple-500 cursor-pointer"
+                  onClick={() => router.push("/login")}
+                >
+                  Login
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

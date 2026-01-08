@@ -57,7 +57,7 @@ export default function SettingsPage() {
           Settings - Assign Roles
         </h1>
       </div>
-
+    
       {allUsers.length === 0 && (
         <div className="text-center py-12 text-gray-500 border border-gray-800 rounded-xl mt-4 bg-gray-900/10">
           <p>No users found in the system.</p>

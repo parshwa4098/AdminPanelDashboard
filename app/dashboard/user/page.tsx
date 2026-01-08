@@ -28,7 +28,7 @@ interface NewUser {
 }
 
 export default function UsersPage() {
-  useAdminProtection(); 
+  useAdminProtection();
 
   const router = useRouter();
 
@@ -46,6 +46,8 @@ export default function UsersPage() {
   });
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [originalUser, setOriginalUser] = useState<User | null>(null);
+
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newUser, setNewUser] = useState<NewUser>({
     name: "",
@@ -90,10 +92,43 @@ export default function UsersPage() {
     setAllUsers(updated);
   };
 
+  const handleStartEdit = (index: number): void => {
+    setEditingIndex(index);
+    setOriginalUser({ ...allUsers[index] });
+  };
+
   const handleSaveEdit = (): void => {
+    if (editingIndex === null) return;
+
+    const current = allUsers[editingIndex];
+    if (!originalUser) return;
+
+    const isChanged =
+      current.name !== originalUser.name ||
+      current.email !== originalUser.email ||
+      current.role !== originalUser.role;
+
+    if (!isChanged) {
+      toast.info("No changes to save", { position: "top-center" });
+      setEditingIndex(null);
+      setOriginalUser(null);
+      return;
+    }
+
     localStorage.setItem("users", JSON.stringify(allUsers));
-    setEditingIndex(null);
     toast.success("User updated!", { position: "top-center" });
+    setEditingIndex(null);
+    setOriginalUser(null);
+  };
+
+  const handleCancelEdit = (): void => {
+    if (editingIndex !== null && originalUser) {
+      const updated = [...allUsers];
+      updated[editingIndex] = originalUser;
+      setAllUsers(updated);
+    }
+    setEditingIndex(null);
+    setOriginalUser(null);
   };
 
   return (
@@ -108,7 +143,7 @@ export default function UsersPage() {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all shrink-0"
+          className="flex items-center gap-2 cursor-pointer bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all shrink-0"
         >
           <IoIosPersonAdd className="text-xl sm:text-2xl" />
           <span className="font-medium text-sm sm:text-base hidden sm:inline">
@@ -117,25 +152,25 @@ export default function UsersPage() {
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto border border-gray-700 rounded-xl bg-gray-900/20 pb-2">
+      <div className="w-full overflow-x-auto border border-gray-700 rounded-xl bg-gray-900/20 p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {allUsers.map((u, index) => (
             <div
               key={index}
               className="bg-gray-900 border border-gray-700 rounded-xl p-4 flex flex-col gap-3 hover:bg-gray-800 transition"
             >
-              <div className="flex justify-between items-start">
-                <div>
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex-1 min-w-0">
                   {editingIndex === index ? (
                     <input
                       value={u.name}
                       onChange={(e) =>
                         handleFieldChange(index, "name", e.target.value)
                       }
-                      className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
+                      className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm w-full"
                     />
                   ) : (
-                    <h3 className="text-lg font-semibold">{u.name}</h3>
+                    <h3 className="text-lg font-semibold truncate">{u.name}</h3>
                   )}
 
                   {editingIndex === index ? (
@@ -147,37 +182,53 @@ export default function UsersPage() {
                       className="mt-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm w-full"
                     />
                   ) : (
-                    <p className="text-sm text-gray-400">{u.email}</p>
+                    <p className="text-sm text-gray-400 truncate mt-1">
+                      {u.email}
+                    </p>
                   )}
                 </div>
 
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize
-            ${
-              u.role === "admin"
-                ? "bg-red-500/20 text-red-400"
-                : u.role === "manager"
-                ? "bg-blue-500/20 text-blue-400"
-                : "bg-purple-500/20 text-purple-400"
-            }`}
-                >
-                  {u.role}
-                </span>
+                {/* Role Badge or Dropdown - Same space */}
+                <div className="shrink-0">
+                  {editingIndex === index ? (
+                    <select
+                      value={u.role}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          index,
+                          "role",
+                          e.target.value as UserRole
+                        )
+                      }
+                      className={`px-3 py-1 rounded-full text-xs font-medium capitalize cursor-pointer border-2 outline-none
+                        ${
+                          u.role === "admin"
+                            ? "bg-red-500/20 text-red-400 border-red-500/40"
+                            : u.role === "manager"
+                            ? "bg-blue-500/20 text-blue-400 border-blue-500/40"
+                            : "bg-purple-500/20 text-purple-400 border-purple-500/40"
+                        }`}
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="manager">Manager</option>
+                      <option value="employee">Employee</option>
+                    </select>
+                  ) : (
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium capitalize inline-block
+                        ${
+                          u.role === "admin"
+                            ? "bg-red-500/20 text-red-400"
+                            : u.role === "manager"
+                            ? "bg-blue-500/20 text-blue-400"
+                            : "bg-purple-500/20 text-purple-400"
+                        }`}
+                    >
+                      {u.role}
+                    </span>
+                  )}
+                </div>
               </div>
-
-              {editingIndex === index && (
-                <select
-                  value={u.role}
-                  onChange={(e) =>
-                    handleFieldChange(index, "role", e.target.value)
-                  }
-                  className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                  <option value="employee">Employee</option>
-                </select>
-              )}
 
               <div className="text-xs text-green-400 bg-green-500/10 px-2 py-1 rounded w-fit">
                 Active
@@ -189,13 +240,15 @@ export default function UsersPage() {
                     <>
                       <button
                         onClick={handleSaveEdit}
-                        className="text-green-500 hover:text-green-400"
+                        className="text-green-500 hover:text-green-400 cursor-pointer transition-colors"
+                        title="Save changes"
                       >
                         <LuSave size={20} />
                       </button>
                       <button
-                        onClick={() => setEditingIndex(null)}
-                        className="text-red-500 hover:text-red-400"
+                        onClick={handleCancelEdit}
+                        className="text-red-500 hover:text-red-400 cursor-pointer transition-colors"
+                        title="Cancel editing"
                       >
                         <TbEyeCancel size={20} />
                       </button>
@@ -203,14 +256,16 @@ export default function UsersPage() {
                   ) : (
                     <>
                       <button
-                        onClick={() => setEditingIndex(index)}
-                        className="text-yellow-500 hover:text-yellow-400"
+                        onClick={() => handleStartEdit(index)}
+                        className="text-yellow-500 hover:text-yellow-400 cursor-pointer transition-colors"
+                        title="Edit user"
                       >
                         <LiaUserEditSolid size={22} />
                       </button>
                       <button
                         onClick={() => handleDelete(index)}
-                        className="text-red-500 hover:text-red-400"
+                        className="text-red-500 hover:text-red-400 cursor-pointer transition-colors"
+                        title="Delete user"
                       >
                         <MdDelete size={22} />
                       </button>
@@ -268,13 +323,15 @@ export default function UsersPage() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                title="Cancel"
               >
                 <TbEyeCancel className="text-black text-3xl" />
               </button>
               <button
                 onClick={handleAddUser}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                title="Save user"
               >
                 <LuSave className="text-black text-3xl" />
               </button>

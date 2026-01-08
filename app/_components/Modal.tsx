@@ -2,7 +2,7 @@ import React from "react";
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;  
+  onClose: () => void;
   children: React.ReactNode;
 }
 
@@ -11,11 +11,11 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300"
       onClick={onClose}
     >
       <div
-        className="text-black rounded-lg p-6 w-[400px] shadow-xl"
+        className=" rounded-xl p-6 w-[90vw] max-w-[400px] shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
