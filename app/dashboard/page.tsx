@@ -510,7 +510,6 @@ export default function DashboardPage() {
         </div>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal isOpen={showDeleteModal} onClose={handleDeleteCancel}>
         <div className="w-[90vw] sm:w-[400px] bg-gray-900 p-6 rounded-xl shadow-2xl border border-gray-700">
           <div className="flex items-center justify-center mb-4">
