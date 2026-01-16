@@ -188,7 +188,7 @@ export default function UsersPage() {
                   )}
                 </div>
 
-                {/* Role Badge or Dropdown - Same space */}
+                
                 <div className="shrink-0">
                   {editingIndex === index ? (
                     <select
